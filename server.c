@@ -1,6 +1,6 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -44,5 +44,32 @@ int main(int argc, char const *argv[])
 	struct addrinfo * bind_address;
 	getaddrinfo(0, "8080", &hints, &bind_address);
 
-	return 0;
+   printf("*****************Creating socket...***************\n");
+   	SOCKET socket_listen;
+   	socket_listen = socket(bind_address->ai_family, bind_address->ai_socktype,bind_address->ai_protocol);
+   	if (socket_listen<0)
+   	{
+   		printf("error occured i creating sockets\n");
+   		return 1;
+   	}
+
+      printf("***************Binding socket to local address...************\n");
+
+   if (bind(socket_listen, bind_address->ai_addr,bind_address->ai_addrlen))
+   {
+   	printf("failded binding\n");
+   	return 1;  
+
+   	 }
+   	 freeaddrinfo(bind_address);
+  
+
+   if (listen(socket_listen,5))
+   {
+   	printf("failded listen\n");
+   	return 1;  
+// aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+   	 }
+
+	return 0;         // new commit
 }
