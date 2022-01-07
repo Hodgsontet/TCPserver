@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
 	hints.ai_flags = AI_PASSIVE;
 
 	struct addrinfo * bind_address;
-	getaddrinfo(0, "8080", &hints, &bind_address);
+	getaddrinfo(0, "8081", &hints, &bind_address);
 
    printf("*****************Creating socket...***************\n");
    	SOCKET socket_listen;
@@ -75,18 +75,51 @@ int main(int argc, char const *argv[])
 
   struct sockaddr_storage client_address;
   socklen_t client_len = sizeof(client_address);
-  SOCKET socket_client = accept(socket_listen,(struct sockaddr*) &client_address, &client_len);
-   if (!ISVALIDSOCKET(socket_client)) {
- fprintf(stderr, "accept() failed. (%d)\n", GETSOCKETERRNO());
- return 1;
- }
+  while(1)
+  {
 
- printf("Reading request...\n");
- char request[1024];
- int bytes_received = recv(socket_client, request, 1024, 0);
- printf("Received %d bytes.\n", bytes_received);
+        SOCKET socket_client = accept(socket_listen,(struct sockaddr*) &client_address, &client_len);
+         if (!ISVALIDSOCKET(socket_client)) {
+       printf("accept() failed \n");
+       return 1;
+       }
+  int pid = fork();
+   if (pid ==0)
+   {
+    CLOSESOCKET(socket_listen);
+     printf("Reading request...\n");
+       char request[1024];
+       int bytes_received = recv(socket_client, request, 1024, 0);
+       cout<<request<<'\n';
+
+       printf("sending response \n");
+       const string response =
+       "HTTP/1.1 200 OK\r\n"
+       "Connection: close\r\n"
+       "Content-Type: text/plain\r\n\r\n"
+       "*****************connection complete**************** \n";
+       const string gif = " this is where i can return any value as a micro service";
+       //// we will know send packets back///
+        int resil = send(socket_client, response.c_str(), response.length(), 0);
+        int resil2 = send(socket_client, gif.c_str(), gif.length(), 0);
+        if (resil<0)
+        {
+          printf("**************************send unseccesful***************\n");
+        }
+        if (resil2<0)
+        {
+          printf("**************************send unseccesful***************\n");
+        }
 
 
+      printf("Closing connection...\n");
+       CLOSESOCKET(socket_client);
+   }
+
+   else
+    CLOSESOCKET(socket_client);
+       
+}
  // will create a way to send info to client
 
 	return 0;    
