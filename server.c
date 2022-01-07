@@ -68,8 +68,26 @@ int main(int argc, char const *argv[])
    {
    	printf("failded listen\n");
    	return 1;  
-// aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
    	 }
 
-	return 0;         // new commit
+     printf("************Waiting for connection... ***************\n");
+
+  struct sockaddr_storage client_address;
+  socklen_t client_len = sizeof(client_address);
+  SOCKET socket_client = accept(socket_listen,(struct sockaddr*) &client_address, &client_len);
+   if (!ISVALIDSOCKET(socket_client)) {
+ fprintf(stderr, "accept() failed. (%d)\n", GETSOCKETERRNO());
+ return 1;
+ }
+
+ printf("Reading request...\n");
+ char request[1024];
+ int bytes_received = recv(socket_client, request, 1024, 0);
+ printf("Received %d bytes.\n", bytes_received);
+
+
+ // will create a way to send info to client
+
+	return 0;    
 }
